@@ -10,7 +10,6 @@ function Landing() {
   const [roomCode, setRoomCode] = useState('');
   const [error, setError] = useState('');
   const [isJoining, setIsJoining] = useState(false);
-  const [stats, setStats] = useState({ online: 1247, battles: 324 });
   const [glitchActive, setGlitchActive] = useState(false);
   const navigate = useNavigate();
   const floatingShapesRef = useRef([]);
@@ -18,14 +17,6 @@ function Landing() {
   useEffect(() => {
     socket.connect();
     
-    // Simulate live stats updates
-    const interval = setInterval(() => {
-      setStats(prev => ({
-        online: Math.max(1000, prev.online + Math.floor(Math.random() * 10) - 5),
-        battles: Math.max(300, prev.battles + Math.floor(Math.random() * 6) - 3)
-      }));
-    }, 5000);
-
     // Random glitch effect
     const glitchInterval = setInterval(() => {
       setGlitchActive(true);
@@ -41,7 +32,6 @@ function Landing() {
     ];
     
     return () => {
-      clearInterval(interval);
       clearInterval(glitchInterval);
     };
   }, []);
