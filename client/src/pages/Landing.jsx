@@ -10,7 +10,6 @@ function Landing() {
   const [roomCode, setRoomCode] = useState('');
   const [error, setError] = useState('');
   const [isJoining, setIsJoining] = useState(false);
-  const [stats, setStats] = useState({ online: 1247, battles: 324 });
   const [glitchActive, setGlitchActive] = useState(false);
   const navigate = useNavigate();
   const floatingShapesRef = useRef([]);
@@ -18,14 +17,6 @@ function Landing() {
   useEffect(() => {
     socket.connect();
     
-    // Simulate live stats updates
-    const interval = setInterval(() => {
-      setStats(prev => ({
-        online: Math.max(1000, prev.online + Math.floor(Math.random() * 10) - 5),
-        battles: Math.max(300, prev.battles + Math.floor(Math.random() * 6) - 3)
-      }));
-    }, 5000);
-
     // Random glitch effect
     const glitchInterval = setInterval(() => {
       setGlitchActive(true);
@@ -41,7 +32,6 @@ function Landing() {
     ];
     
     return () => {
-      clearInterval(interval);
       clearInterval(glitchInterval);
     };
   }, []);
@@ -55,12 +45,18 @@ function Landing() {
     setError('');
     socket.emit('createRoom', { playerName: playerName.trim() }, (response) => {
       if (response.success) {
+        // Cache for recovery
+        localStorage.setItem('codeRed_roomCode', response.roomCode);
+        localStorage.setItem('codeRed_playerId', response.playerId);
+        localStorage.setItem('codeRed_playerName', playerName.trim());
+
         navigate('/lobby', {
           state: {
             roomCode: response.roomCode,
             playerId: response.playerId,
             playerName: playerName.trim(),
-            isHost: true
+            isHost: true,
+            room: response.room
           }
         });
       } else {
@@ -89,12 +85,18 @@ function Landing() {
       (response) => {
         setIsJoining(false);
         if (response.success) {
+          // Cache for recovery
+          localStorage.setItem('codeRed_roomCode', roomCode.toUpperCase());
+          localStorage.setItem('codeRed_playerId', response.playerId);
+          localStorage.setItem('codeRed_playerName', playerName.trim());
+
           navigate('/lobby', {
             state: {
               roomCode: roomCode.toUpperCase(),
               playerId: response.playerId,
               playerName: playerName.trim(),
-              isHost: false
+              isHost: false,
+              room: response.room
             }
           });
         } else {

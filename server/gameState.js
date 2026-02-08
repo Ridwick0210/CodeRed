@@ -194,13 +194,27 @@ function addPlayerToRoom(roomCode, playerId, playerName) {
     return { error: 'Game already in progress' };
   }
 
+  // Clear empty timer if it exists
+  if (room.emptyTimeout) {
+    clearTimeout(room.emptyTimeout);
+    room.emptyTimeout = null;
+  }
+
+  // Determine if this player should be host
+  // If room has no players, or if the original host is gone and we're filling the spot
+  const isFirstPlayer = room.players.size === 0;
+  
   room.players.set(playerId, {
     id: playerId,
     name: playerName,
-    isHost: false,
+    isHost: isFirstPlayer, // First player in is host
     isReady: false,
     role: null
   });
+
+  if (isFirstPlayer) {
+    room.hostId = playerId;
+  }
 
   room.scores.set(playerId, 0);
   
@@ -216,16 +230,27 @@ function removePlayerFromRoom(roomCode, playerId) {
   room.scores.delete(playerId);
 
   // If host left, assign new host
-  if (room.hostId === playerId && room.players.size > 0) {
-    const newHost = Array.from(room.players.values())[0];
-    newHost.isHost = true;
-    room.hostId = newHost.id;
+  if (room.hostId === playerId) {
+    if (room.players.size > 0) {
+      const newHost = Array.from(room.players.values())[0];
+      newHost.isHost = true;
+      room.hostId = newHost.id;
+    } else {
+      // Room is empty, no host needed yet
+      room.hostId = null;
+    }
   }
 
-  // Delete room if empty
+  // Handle empty room with grace period
   if (room.players.size === 0) {
-    rooms.delete(roomCode);
-    return null;
+    // Don't delete immediately. Wait 30 seconds for reconnect.
+    console.log(`Room ${roomCode} is empty. Scheduling cleanup in 30s.`);
+    room.emptyTimeout = setTimeout(() => {
+      if (rooms.has(roomCode) && rooms.get(roomCode).players.size === 0) {
+        rooms.delete(roomCode);
+        console.log(`Room ${roomCode} deleted after 30s timeout.`);
+      }
+    }, 30000); // 30 seconds grace period
   }
 
   return room;
