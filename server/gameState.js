@@ -74,28 +74,23 @@ const codeSamples = [
 }`,
     bugs: [
       {
-        id: "bug3",
+        id: "bug1",
         description: "Divide method missing zero check before division",
         location: "Line 33",
         difficulty: "medium"
       },
       {
-        id: "bug4",
+        id: "bug2",
         description: "squareRoot missing check for negative numbers",
         location: "Line 49",
         difficulty: "medium"
       },
     ],
     testCases: [
-      { method: 'add', args: [10, 5], expected: 15 },
-      { method: 'subtract', args: [10, 4], expected: 6 },
-      { method: 'multiply', args: [3, 7], expected: 21 },
       { method: 'divide', args: [20, 4], expected: 5 },
       { method: 'divide', args: [5, 0], expected: 'Error', errorMsg: 'Cannot divide by zero' },
-      { method: 'power', args: [2, 4], expected: 16 },
       { method: 'squareRoot', args: [25], expected: 5 },
       { method: 'squareRoot', args: [-9], expected: 'Error', errorMsg: 'Cannot calculate square root of negative number' },
-      { method: 'decrement', args: [10], expected: 9 }
     ]
   }
 ];
@@ -238,14 +233,14 @@ function injectBug(correctCode, bugId) {
   let buggedCode = correctCode;
   
   switch(bugId) {
-    case 'bug3':
+    case 'bug1':
       buggedCode = buggedCode.replace(
         /divide\(a, b\)\s*{\s*if \(b === 0\) {\s*throw new Error\('Cannot divide by zero'\);\s*}\s*/,
         'divide(a, b) {\n    '
       );
       break;
       
-    case 'bug4':
+    case 'bug2':
       buggedCode = buggedCode.replace(
         /squareRoot\(n\)\s*{\s*if \(n < 0\) {\s*throw new Error\('Cannot calculate square root of negative number'\);\s*}\s*/,
         'squareRoot(n) {\n    '
