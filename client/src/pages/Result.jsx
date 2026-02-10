@@ -23,7 +23,8 @@ function Result() {
           roomCode,
           playerId,
           playerName,
-          isHost: updatedRoom.hostId === playerId
+          isHost: updatedRoom.hostId === playerId,
+          room: updatedRoom
         }
       });
     });
@@ -50,8 +51,16 @@ function Result() {
   };
 
   const handleLeave = () => {
-    socket.disconnect();
-    navigate('/');
+    socket.emit('leaveRoom', (response) => {
+      if (response.success || !response) {
+        socket.disconnect();
+        navigate('/');
+      } else {
+        console.error('Failed to leave room:', response.error);
+        socket.disconnect();
+        navigate('/');
+      }
+    });
   };
 
   if (!room) {
@@ -83,12 +92,12 @@ function Result() {
   let losersList = [];
   
   if (gameWinner === 'debuggers') {
-    winnerDisplay = '🔍 DEBUGGERS WIN!';
+    winnerDisplay = 'DEBUGGERS WIN!';
     // Debuggers won - they are the winners
     winnersList = room.players.filter(p => room.debuggers.includes(p.id));
     losersList = room.players.filter(p => p.id === room.bugger);
   } else if (gameWinner === 'bugger') {
-    winnerDisplay = '🐛 BUGGER WINS!';
+    winnerDisplay = 'BUGGER WINS!';
     // Bugger won - they are the winner
     winnersList = room.players.filter(p => p.id === room.bugger);
     losersList = room.players.filter(p => room.debuggers.includes(p.id));
@@ -110,9 +119,7 @@ function Result() {
 
         {/* Winner Card */}
         <div className="winner-card">
-          <span className="winner-crown">👑</span>
           <div className="winner-info">
-            <span className="winner-label">WINNER</span>
             <span className="winner-name">{winnerDisplay}</span>
             {gameReason && <span className="winner-reason">{gameReason}</span>}
           </div>
@@ -128,11 +135,10 @@ function Result() {
                 className={`score-row ${player.id === playerId ? 'highlight' : ''}`}
                 style={{ borderColor: '#00ff88' }}
               >
-                <span className="score-rank">🏆</span>
                 <span className="score-name">{player.name}</span>
                 {player.id === playerId && <span className="you-badge">YOU</span>}
                 <span className="score-role">
-                  {player.id === room.bugger ? '🐛 Bugger' : '🔍 Debugger'}
+                  {player.id === room.bugger ? 'Bugger' : 'Debugger'}
                 </span>
               </div>
             ))}
@@ -153,7 +159,7 @@ function Result() {
                   <span className="score-name">{player.name}</span>
                   {player.id === playerId && <span className="you-badge">YOU</span>}
                   <span className="score-role">
-                    {player.id === room.bugger ? '🐛 Bugger' : '🔍 Debugger'}
+                    {player.id === room.bugger ? 'Bugger' : 'Debugger'}
                   </span>
                 </div>
               ))}

@@ -16,28 +16,24 @@ const ROLES_INFO = [
   {
     title: "Fixers",
     description: "Write clean code and catch the bugger before time runs out",
-    icon: "</>",
     color: "#00ddff",
     bgColor: "rgba(0, 221, 255, 0.05)",
   },
   {
     title: "SABOTEUR",
     description: "Inject subtle bugs and survive until the timer ends",
-    icon: "🐛",
     color: "#ff3366",
     bgColor: "rgba(255, 51, 102, 0.05)",
   },
   {
     title: "TIMER",
-    description: "14 minutes to complete tasks and identify the bugger",
-    icon: "⏱",
+    description: "2 minutes to complete tasks and identify the bugger",
     color: "#00ff88",
     bgColor: "rgba(0, 255, 136, 0.05)",
   },
   {
     title: "BUZZER",
     description: "Press to accuse and review code. Wrong? You're penalized!",
-    icon: "🔔",
     color: "#ffcc00",
     bgColor: "rgba(255, 204, 0, 0.05)",
   },
@@ -263,8 +259,16 @@ export default function GameLobby() {
 
   const handleExitLobby = () => {
     if (window.confirm("Are you sure you want to leave the lobby?")) {
-      socket.disconnect();
-      navigate("/");
+      socket.emit('leaveRoom', (response) => {
+        if (response.success || !response) {
+          socket.disconnect();
+          navigate("/");
+        } else {
+          console.error('Failed to leave room:', response.error);
+          socket.disconnect();
+          navigate("/");
+        }
+      });
     }
   };
 
@@ -359,7 +363,7 @@ export default function GameLobby() {
         <div className="players-panel">
           <div className="panel-header">
             <h2>
-              PLAYERS ({readyCount}/{players.length})
+              PLAYERS
             </h2>
             <span className="player-count">
               {readyCount}/{players.length}
@@ -454,7 +458,6 @@ export default function GameLobby() {
 
           <div className="game-settings">
             <div className="settings-header">
-              <span className="cursor-icon">⚙️</span>
               <h3>GAME SETTINGS</h3>
             </div>
             <div className="settings-row">

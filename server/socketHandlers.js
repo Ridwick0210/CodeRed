@@ -468,6 +468,51 @@ function setupSocketHandlers(io) {
       }
     });
 
+    // LEAVE ROOM
+    socket.on("leaveRoom", (callback) => {
+      const playerData = socketToPlayer.get(socket.id);
+      if (!playerData) {
+        if (callback) callback({ success: false, error: 'Not in a room' });
+        return;
+      }
+
+      const { playerId, roomCode } = playerData;
+      const room = getRoom(roomCode);
+
+      // If leaving player was in an active vote, cancel the vote
+      if (room && room.activeVote) {
+        clearTimeout(buzzVoteTimers.get(roomCode));
+        clearBuzzVote(roomCode);
+        io.to(roomCode).emit("voteCancelled", {
+          reason: "A player left the room",
+        });
+      }
+
+      const updatedRoom = removePlayerFromRoom(roomCode, playerId);
+
+      if (updatedRoom) {
+        io.to(roomCode).emit("playerLeft", {
+          playerId,
+          room: serializeRoom(updatedRoom),
+        });
+
+        // System message for chat
+        io.to(roomCode).emit('chatMessage', {
+          username: 'System',
+          message: 'A player left the room',
+          color: '#ff3366'
+        });
+      }
+
+      // Clean up socket mappings
+      socketToPlayer.delete(socket.id);
+      playerToSocket.delete(playerId);
+
+      console.log(`Player ${playerId} left room ${roomCode}`);
+      
+      if (callback) callback({ success: true });
+    });
+
     // DISCONNECT
     socket.on("disconnect", () => {
       const playerData = socketToPlayer.get(socket.id);

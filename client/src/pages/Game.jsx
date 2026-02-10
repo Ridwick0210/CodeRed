@@ -205,8 +205,16 @@ function Game() {
 
   const handleLeaveRoom = () => {
     if (window.confirm('Are you sure you want to leave the game?')) {
-      socket.disconnect();
-      navigate('/');
+      socket.emit('leaveRoom', (response) => {
+        if (response.success || !response) {
+          socket.disconnect();
+          navigate('/');
+        } else {
+          console.error('Failed to leave room:', response.error);
+          socket.disconnect();
+          navigate('/');
+        }
+      });
     }
   };
 
@@ -274,7 +282,7 @@ function Game() {
         <div className="right">
           <span className="room-code">ROOM: #{roomCode}</span>
           <span className={`role-badge ${isBugger ? 'bugger' : 'debugger'}`}>
-            {isBugger ? '🐛 BUGGER' : '🔍 DEBUGGER'}
+            {isBugger ? 'BUGGER' : 'DEBUGGER'}
           </span>
           {isDisabled && <span className="disabled-badge">❌ DISABLED</span>}
         </div>
@@ -316,7 +324,6 @@ function Game() {
             <div className="bugs-list">
               {bugsList.map(bug => (
                 <div key={bug.id} className="bug-item">
-                  <span className="bug-icon">🐛</span>
                   <div className="bug-info">
                     <div className="bug-title">{bug.title}</div>
                     <div className="bug-location">in {bug.location}</div>
@@ -348,7 +355,6 @@ function Game() {
           {!isBugger && !isDisabled && (
             <div className="info-panel">
               <div className="panel-header">
-                <span className="icon">ℹ️</span>
                 <span>GAME INFO</span>
               </div>
               <div className="info-content">

@@ -494,21 +494,21 @@ function Landing() {
 
         .pixel-icon-inner {
           font-size: 48px;
-          color: #ffcc00;
-          background: rgba(255, 204, 0, 0.1);
+          color: #ff3366;
+          background: rgba(255, 51, 102, 0.1);
           border-radius: 12px;
           padding: 15px;
-          border: 2px solid #ffcc00;
-          box-shadow: 0 0 20px rgba(255, 204, 0, 0.4), inset 0 0 20px rgba(255, 204, 0, 0.2);
+          border: 2px solid #ff3366;
+          box-shadow: 0 0 20px rgba(255, 51, 102, 0.4), inset 0 0 20px rgba(255, 51, 102, 0.2);
           animation: iconPulse 3s ease-in-out infinite;
         }
 
         @keyframes iconPulse {
           0%, 100% { 
-            box-shadow: 0 0 20px rgba(255, 204, 0, 0.4), inset 0 0 20px rgba(255, 204, 0, 0.2);
+            box-shadow: 0 0 20px rgba(255, 51, 102, 0.4), inset 0 0 20px rgba(255, 51, 102, 0.2);
           }
           50% { 
-            box-shadow: 0 0 40px rgba(255, 204, 0, 0.6), inset 0 0 30px rgba(255, 204, 0, 0.3);
+            box-shadow: 0 0 40px rgba(255, 51, 102, 0.6), inset 0 0 30px rgba(255, 51, 102, 0.3);
           }
         }
 

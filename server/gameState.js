@@ -133,7 +133,7 @@ function createRoom(roomCode, hostId, hostName) {
     players: new Map(),
     gameState: "lobby", // lobby, playing, results
     currentRound: 0,
-    totalRounds: 3,
+    totalRounds: 1,
     roundStartTime: null,
     roundDuration: 90, // seconds
     currentCode: null,
